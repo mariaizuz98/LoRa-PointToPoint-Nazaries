@@ -4,7 +4,7 @@
 // Generial libreries 
 #include "Arduino.h"
 // #include "config/config.h"
-#include "state/states.h"
+#include "states/states.h"
 #include "http/http.h"
 
 const uint16_t OKMsg = 65535;
@@ -28,8 +28,9 @@ bool recievePackage     (void);
 // void sendPackageACK(byte destination);
 // void readPackage(int packetSize);
 void readPackage        (void);
-// void identifyActionLoRa (byte msgID);
-void parseSensorData(const char* sensorData);
+void identifyActionLoRa (byte msgID);
+void sendDataToCloud    (void);
+void parseSensorData    (const char* sensorData);
 /****************************************************/
 
 #endif

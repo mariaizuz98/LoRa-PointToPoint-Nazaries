@@ -6,5 +6,5 @@
 
 .pio/ 
 .vscode/
-src/secrets/
+src/secrets/secrets.h
 src/http/

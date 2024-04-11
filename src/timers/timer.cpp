@@ -1,9 +1,5 @@
 #include "timer.h"
 
-//#define TIME_SEND_MSG 300000000         // alarma cada 15 min (valor en microsegundos)
-#define TIME_SEND_MSG 300000000         // alarma cada 5 min (valor en microsegundos) PARA PRUEBAS
-#define TIME_RESPONSE_MSG 120000000     // alarma cada 2 min (valor en microsegundos)
-
 hw_timer_t *sendTimer = NULL;
 hw_timer_t *responseTimer = NULL;
 portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED;
@@ -12,25 +8,28 @@ bool sendLoRa = false;
 bool sendLoRaAgain = false;
 
 void IRAM_ATTR onSendTimer(void){
-    sendLoRa = true;    
+    portENTER_CRITICAL(&timerMux);
+    sendLoRa = true;  
+    portEXIT_CRITICAL(&timerMux);  
 }
 
 void IRAM_ATTR onResponseTimer(void){
-    timerWrite(sendTimer,0);
+    portENTER_CRITICAL(&timerMux);
     sendLoRaAgain = true;
+    portEXIT_CRITICAL(&timerMux);
 }
 
 
 int setupTimers(void){
     // Timer1 para la interrupción del envio de mensajes mediante LoRa (cada 15 min)
     Serial.print("* Initializing Timers...");
-    sendTimer = timerBegin(0, 80, true);
+    sendTimer = timerBegin(0, 8000, true);
     if (sendTimer == NULL) {
         Serial.println(" --- Error (sendTimer): timer not created");
         return -1;
     }
     timerAttachInterrupt(sendTimer, &onSendTimer, true); // adjuntar la función de interrupción
-    timerAlarmWrite(sendTimer, TIME_SEND_MSG, true); 
+    timerAlarmWrite(sendTimer, TIME_SEND_MSG, false); 
     timerAlarmEnable(sendTimer); // habilitar la alarma
 
     // Timer2 para la interrupción de vuelta a enviar (cada 2 min)
@@ -40,7 +39,7 @@ int setupTimers(void){
         return -1;
     }
     timerAttachInterrupt(responseTimer, &onResponseTimer, true); // adjuntar la función de interrupción
-    timerAlarmWrite(responseTimer, TIME_RESPONSE_MSG, true); 
+    timerAlarmWrite(responseTimer, TIME_RESPONSE_MSG, false); 
     Serial.println(" Timers OK");
     return 0;
 }

@@ -1,19 +1,20 @@
 #include "Arduino.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include "freertos/semphr.h"
 #include "config/config.h"
 #include "package/package.h"
-#include "state/states.h"
+#include "states/states.h"
 
-#define STACK_SIZE  4096
-
-SemaphoreHandle_t xSemaphore; 
+#define STACK_SIZE              4096
+#define ARDUINO_RUNNING_CORE0   0
+#define ARDUINO_RUNNING_CORE1   1
 
 void create_taskStates(void);
 void create_taskListen(void);
 void vTaskListen( void * pvParameters );
 void vTaskStates( void * pvParameters );
+
+extern bool receiveMsg;
 
 void setup(void){
     Serial.begin(9600);
@@ -22,10 +23,6 @@ void setup(void){
     }
     
     config_Init();
-    xSemaphore = xSemaphoreCreateBinary(); 
-    if (xSemaphore == NULL) {
-        // Error al crear el semáforo
-    }
     #ifdef NODE_LORA
       create_taskStates();
     #endif
@@ -33,48 +30,29 @@ void setup(void){
 }
 
 void loop(void){
+    // if(LoRa.parsePacket() != 0) readPackage;
 }
 
 void create_taskStates(void){
-    xTaskCreatePinnedToCore(vTaskStates,
-                "vTaskStates",
-                STACK_SIZE,
-                NULL,
-                1,
-                NULL,
-                0);
+    xTaskCreatePinnedToCore(vTaskStates, "vTaskStates", STACK_SIZE, NULL, 1, NULL, ARDUINO_RUNNING_CORE0);
 }
 
 void create_taskListen(void){
-    xTaskCreatePinnedToCore(vTaskListen,
-                            "vTaskListen",
-                            STACK_SIZE,
-                            NULL,
-                            1,
-                            NULL,
-                            1);
+    xTaskCreatePinnedToCore(vTaskListen, "vTaskListen", STACK_SIZE, NULL, 1, NULL, ARDUINO_RUNNING_CORE1);
 }
 
-void vTaskListen( void * pvParameters ){
+void vTaskListen( void *pvParameters ){
     while(1){
-        // Se espera a que el semáforo binario esté liberado
-        #ifdef NODE_LORA
-          if(xSemaphoreTake(xSemaphore, portMAX_DELAY) == pdTRUE) {
-              // Cuando se libera el semáforo, se ejecuta el código de escucha
-              if(recievePackage()) readPackage();
-          }
-        #elif GATEWAY_LORA
-          if(recievePackage()) readPackage();
-        #endif
+        if(recievePackage()) readPackage();
+        receiveMsg = false;
+        // if(LoRa.parsePacket() != 0) readPackage;
+        vTaskDelay(pdMS_TO_TICKS(50));
     }
 }
 
-void vTaskStates( void * pvParameters ){
+void vTaskStates( void *pvParameters ){
     while(1){
         switchStates();
-        // Se libera el semáforo binario para permitir que la tarea de escucha comience a trabajar
-        xSemaphoreGive(xSemaphore);
-        // Se introduce un pequeño retardo para evitar la reentrancia inmediata
-        vTaskDelay(pdMS_TO_TICKS(100));
+        vTaskDelay(pdMS_TO_TICKS(200)); // 200 OK
     }
 }

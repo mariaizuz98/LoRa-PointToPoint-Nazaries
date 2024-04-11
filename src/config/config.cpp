@@ -6,7 +6,7 @@ SSD1306 display (0x3c, OLED_SDA, OLED_SCL);
   WiFiClient client;
 #endif
 uint32_t chipID = 0;
-byte boardID;
+byte myBoardID;
 
 int config_Init(void){
     Serial.println("");
@@ -23,18 +23,18 @@ int config_Init(void){
     #endif
 
     #ifdef NODE_LORA
-      Serial.printf("* LoRa Node... ID: 0x%2X\r\n", boardID);
+      Serial.printf("* LoRa Node... ID: 0x%2X\r\n", myBoardID);
       display.clear();
       display.setTextAlignment(TEXT_ALIGN_LEFT);
       display.drawString(0, 0, "LORA NODE");
-      display.drawString(0, 12, "ID: 0x" + String(boardID, HEX));
+      display.drawString(0, 12, "ID: 0x" + String(myBoardID, HEX));
       display.display();
     #else 
-      Serial.printf("* LoRa Gateway.. ID: 0x%2X\r\n", boardID);
+      Serial.printf("* LoRa Gateway.. ID: 0x%2X\r\n", myBoardID);
       display.clear();
       display.setTextAlignment(TEXT_ALIGN_LEFT);
       display.drawString(0, 0, "LORA GATEWAY");
-      display.drawString(0, 12, "ID: 0x" + String(boardID, HEX));
+      display.drawString(0, 12, "ID: 0x" + String(myBoardID, HEX));
       display.display();
     #endif
     return 0;
@@ -49,8 +49,8 @@ void setupID(void){
     for(int i=0; i<17; i=i+8) {
       chipID |= ((ESP.getEfuseMac() >> (40 - i)) & 0xff) << i;
     }
-    boardID = (byte) chipID;
-    Serial.printf(" Chip ID: %d... ID device: 0x%2X \r\n", chipID, boardID);
+    myBoardID = (byte) chipID;
+    Serial.printf(" Chip ID: %d... ID device: 0x%2X \r\n", chipID, myBoardID);
     delay(1000);
 }
 
