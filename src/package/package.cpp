@@ -44,13 +44,12 @@ void readPackage(void){
     while (LoRa.available()) {
         incomingMsg += (char)LoRa.read();
     }
-
-    Serial.println(" ··· Message LoRa receive...");
-
-    Serial.printf("Sender: 0x%2X |  Destination: 0x%2X  |  Message ID: %d  |  Message: %s  |  RSSI:  %d  | SNR:  %.2f  \r\n", 
-                    senderID, receiverID, incomingMsgID, incomingMsg, LoRa.packetRssi(), LoRa.packetSnr());
-
-    identifyActionLoRa(incomingMsgID);
+    if(receiverID == myBoardID){
+        Serial.println(" ··· Message LoRa receive...");
+        Serial.printf("Sender: 0x%2X |  Destination: 0x%2X  |  Message ID: %d  |  Message: %s  |  RSSI:  %d  | SNR:  %.2f  \r\n", 
+                        senderID, receiverID, incomingMsgID, incomingMsg, LoRa.packetRssi(), LoRa.packetSnr());
+        identifyActionLoRa(incomingMsgID);
+    }
 }
 
 void identifyActionLoRa(byte msgID){

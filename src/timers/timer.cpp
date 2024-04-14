@@ -9,6 +9,9 @@ bool sendLoRaAgain = false;
 
 void IRAM_ATTR onSendTimer(void){
     portENTER_CRITICAL(&timerMux);
+    timerStart(responseTimer);
+    timerStop(sendTimer);
+    timerWrite(sendTimer, 0);
     sendLoRa = true;  
     portEXIT_CRITICAL(&timerMux);  
 }
@@ -21,25 +24,27 @@ void IRAM_ATTR onResponseTimer(void){
 
 
 int setupTimers(void){
-    // Timer1 para la interrupción del envio de mensajes mediante LoRa (cada 15 min)
+    // Timer1 para la interrupción del envio de mensajes mediante LoRa
+    // Timer2 para la interrupción de vuelta a enviar 
     Serial.print("* Initializing Timers...");
-    sendTimer = timerBegin(0, 8000, true);
-    if (sendTimer == NULL) {
-        Serial.println(" --- Error (sendTimer): timer not created");
-        return -1;
-    }
-    timerAttachInterrupt(sendTimer, &onSendTimer, true); // adjuntar la función de interrupción
-    timerAlarmWrite(sendTimer, TIME_SEND_MSG, false); 
-    timerAlarmEnable(sendTimer); // habilitar la alarma
+    sendTimer = timerBegin(0, 80, true);
+    responseTimer = timerBegin(1, 80, true);
 
-    // Timer2 para la interrupción de vuelta a enviar (cada 2 min)
-    responseTimer = timerBegin(1, 80, true); 
-    if (responseTimer == NULL) {
-        Serial.println(" --- Error (responseTimer): timer not created");
+    if (sendTimer == NULL || responseTimer == NULL) {
+        Serial.println(" --- Error: timer not created");
         return -1;
     }
-    timerAttachInterrupt(responseTimer, &onResponseTimer, true); // adjuntar la función de interrupción
-    timerAlarmWrite(responseTimer, TIME_RESPONSE_MSG, false); 
+
+    timerAttachInterrupt(sendTimer, &onSendTimer, true);
+    timerAttachInterrupt(responseTimer, &onResponseTimer, true);
+    timerAlarmWrite(sendTimer, TIME_SEND_MSG, true);  // Seteado para auto-reload
+    timerAlarmWrite(responseTimer, TIME_RESPONSE_MSG, true);  // Seteado para auto-reload
+
+    timerAlarmEnable(sendTimer);  // Habilita solo el timer de envío inicialmente
+    timerAlarmEnable(responseTimer);  // Asegura que el timer de respuesta esté deshabilitado inicialmente
+    timerStop(responseTimer);  
+    timerWrite(responseTimer, 0);
+
     Serial.println(" Timers OK");
     return 0;
 }
