@@ -15,7 +15,7 @@ Programa general. Este programa incluye dos hilos. Se ejecutan en paralelo.
 ### Carpeta config 
 Inicialización de los recursos de la placa de desarrollo y establecer un ID
 ### Carpeta package
-Envio de paquete de datos y recepción del paquete
+Envio de paquete de datos y recepción del paquetes
 ### Carpeta sensors
 Sensor DHT11 y DHT22
 ### Carpeta states

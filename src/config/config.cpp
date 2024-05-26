@@ -11,12 +11,12 @@ byte myBoardID;
 int config_Init(void){
     Serial.println("");
     setupID();
-    if(setupDisplay() == ERRNO) return -1;
-    if(setupLORA() == ERRNO) return -1;
     #ifdef GATEWAY_LORA
       setupWiFi();
       updateTime();
     #endif
+    if(setupDisplay() == ERRNO) return -1;
+    if(setupLORA() == ERRNO) return -1;
     #ifdef NODE_LORA
       if(setupTimers() == ERRNO) return -1;
       setupDHT();
@@ -95,7 +95,7 @@ int setupLORA (void){
 }
 
 /*
-  INICIALIZACION DEL WiFi Y THINGSPEAK
+  INICIALIZACION DEL WiFi
   Solo en caso de que el dispositivo sea etiquetado como Gateway se hará uso del WiFi
 */
 void setupWiFi(void){
@@ -109,9 +109,5 @@ void setupWiFi(void){
       }
       // Text serial monitor and display
       Serial.println(" WiFi OK");
-
-      // Connect to the ThingSpeak Platform
-      ThingSpeak.begin(client);
-      delay(1000);
     #endif
 }
