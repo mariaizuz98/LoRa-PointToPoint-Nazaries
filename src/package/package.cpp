@@ -70,7 +70,6 @@ void identifyActionLoRa(byte msgID){
         default:
             break;
     }
-
 }
 void sendDataToCloud(void){
     parseSensorData(strdup(incomingMsg.c_str()));
