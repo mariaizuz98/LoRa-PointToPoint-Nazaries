@@ -20,6 +20,9 @@ Recursos utilizados:
 | LCD  | LCD  |
 | LoRa  | LoRa  |
 | -  | DHT11  |
+### Carpeta http
+Es la encargada del envío de mediciones al servidor.
+Por cuestiones de confidencialidad con la empresa Nazraríes Intelligenia no se permite compartir esta información. 
 ### Carpeta package
 Envio de paquete de datos y recepción del paquetes
 Estructura de paquetes LoRa:
@@ -40,3 +43,5 @@ Temporizadores de envio y reenvio de paquetes. Para las pruebas realizadas los t
 - Temporizador de reenvío: 1 min (no se recibie ACK (confirmación de recepción))
 #### Nota: este tiempo es parametrizable.
 
+## Diagrama de secuencial de la prueba realizada.
+![Diagrama secuencial prueba punto a punto](images/RedLoRaSimpleV1.png)
