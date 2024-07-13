@@ -26,6 +26,7 @@ Recursos utilizados:
 Envio de paquete de datos y recepción del paquetes
 Estructura de paquetes LoRa:
 | ID propio (1 byte)  | ID destino (1 byte) | ID mensaje (1 byte)  | mensaje (variable) |
+| ------------- | ------------- |
 ### Carpeta secrets
 Archivo de ejemplo para las creedenciales de la conexión WiFi
 ### Carpeta sensors
